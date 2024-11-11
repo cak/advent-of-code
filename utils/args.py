@@ -98,7 +98,7 @@ def args(
                 if args.submit:
                     try:
                         print("📤 Submitting Part 1 answer to Santa’s server...")
-                        response = elf.submit_answer(year, day, 1, str(result_part1))
+                        response = elf.submit_answer(year, day, 1, result_part1)
                         print(f"🎅 Submission Response: {response}")
                     except elf.SubmissionError as e:
                         print(f"❌ Submission failed: {e}")
@@ -109,7 +109,7 @@ def args(
                 if args.submit:
                     try:
                         print("📤 Submitting Part 2 answer to Santa’s server...")
-                        response = elf.submit_answer(year, day, 2, str(result_part2))
+                        response = elf.submit_answer(year, day, 2, result_part2)
                         print(f"🎅 Submission Response: {response}")
                     except elf.SubmissionError as e:
                         print(f"❌ Submission failed: {e}")

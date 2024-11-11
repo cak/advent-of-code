@@ -55,6 +55,9 @@ if __name__ == "__main__":
     Line 2 of test input
     """.strip().split("\n")
 
+    # Remove all whitespace from each line
+    test_input = ["".join(line.split()) for line in test_input]
+
     expected_part1 = 42  # Replace with the expected result for Part 1
     expected_part2 = 84  # Replace with the expected result for Part 2
 
