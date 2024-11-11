@@ -22,7 +22,7 @@ def part1(data: list[str]) -> int:
     The elves are eager to see your solution! 🎁
 
     Args:
-        data (List[str]): The puzzle input data as a list of strings.
+        data (list[str]): The puzzle input data as a list of strings.
 
     Returns:
         int: The result for Part 1.
@@ -38,7 +38,7 @@ def part2(data: list[str]) -> int:
     Sprinkle some extra magic for Part 2! ✨
 
     Args:
-        data (List[str]): The puzzle input data as a list of strings.
+        data (list[str]): The puzzle input data as a list of strings.
 
     Returns:
         int: The result for Part 2.
@@ -53,13 +53,13 @@ if __name__ == "__main__":
     # Add your test input data here, for example:
     Line 1 of test input
     Line 2 of test input
-    """.strip().split("\n")
-
-    # Remove all whitespace from each line
-    test_input = ["".join(line.split()) for line in test_input]
+    """.strip()
 
     expected_part1 = 42  # Replace with the expected result for Part 1
     expected_part2 = 84  # Replace with the expected result for Part 2
+
+    # Combine expected outputs into a single string, each on a new line
+    expected_output = f"{expected_part1}\n{expected_part2}"
 
     # Determine the base directory (current script's directory)
     base_dir = Path(__file__).parent
@@ -67,8 +67,7 @@ if __name__ == "__main__":
     args(
         part1=part1,
         part2=part2,
-        expected_part1=expected_part1,
-        expected_part2=expected_part2,
-        test_input=list(test_input),
+        expected_output=expected_output,
+        test_input=test_input,
         base_dir=base_dir,
     )

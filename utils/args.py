@@ -11,15 +11,15 @@ if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 
 import elf  # Import elf after modifying sys.path  # noqa: E402
+from elf.models import TestResult  # noqa: E402
 
 
 # 🎅 Festive Argument Handling for Advent of Code 🎅 #
 def args(
     part1: Callable[[list[str]], int],
     part2: Callable[[list[str]], int],
-    expected_part1: int,
-    expected_part2: int,
-    test_input: list[str],
+    expected_output: str | Path,
+    test_input: str | Path,
     base_dir: Path,
 ) -> None:
     parser = argparse.ArgumentParser(
@@ -56,18 +56,26 @@ def args(
         print("🔍 Running tests... Let's see if the elves approve!")
 
         if args.part in ("1", "both"):
-            result = part1(test_input)
-            assert (
-                result == expected_part1
-            ), f"❌ Part 1 Test Failed: Expected {expected_part1}, got {result}"
-            print(f"✅ Part 1 Test Passed: {result} 🎄")
+            part1_result: TestResult = elf.check_part1_solution(
+                part1_func=part1,
+                test_input=test_input,
+                expected_output=expected_output,
+            )
+            print(part1_result.message)
+            if not part1_result.passed:
+                print("❌ Part 1 Test Failed.")
+                sys.exit(1)
 
         if args.part in ("2", "both"):
-            result = part2(test_input)
-            assert (
-                result == expected_part2
-            ), f"❌ Part 2 Test Failed: Expected {expected_part2}, got {result}"
-            print(f"✅ Part 2 Test Passed: {result} 🎄")
+            part2_result: TestResult = elf.check_part2_solution(
+                part2_func=part2,
+                test_input=test_input,
+                expected_output=expected_output,
+            )
+            print(part2_result.message)
+            if not part2_result.passed:
+                print("❌ Part 2 Test Failed.")
+                sys.exit(1)
 
         print("✅ All tests completed. The elves are dancing with joy! 🎉")
     else:
@@ -98,8 +106,10 @@ def args(
                 if args.submit:
                     try:
                         print("📤 Submitting Part 1 answer to Santa’s server...")
-                        response = elf.submit_answer(year, day, 1, result_part1)
-                        print(f"🎅 Submission Response: {response}")
+                        submission_result = elf.submit_answer(
+                            year, day, 1, result_part1
+                        )
+                        print(submission_result.message)
                     except elf.SubmissionError as e:
                         print(f"❌ Submission failed: {e}")
 
@@ -109,8 +119,10 @@ def args(
                 if args.submit:
                     try:
                         print("📤 Submitting Part 2 answer to Santa’s server...")
-                        response = elf.submit_answer(year, day, 2, result_part2)
-                        print(f"🎅 Submission Response: {response}")
+                        submission_result = elf.submit_answer(
+                            year, day, 2, result_part2
+                        )
+                        print(submission_result.message)
                     except elf.SubmissionError as e:
                         print(f"❌ Submission failed: {e}")
         else:
