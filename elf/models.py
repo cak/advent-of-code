@@ -5,6 +5,26 @@ from enum import Enum, auto
 # 🎁 Elf Models 🎁 #
 
 
+@dataclass
+class TestResult:
+    part: int
+    passed: bool
+    expected: str
+    actual: str
+    message: str
+
+    def __str__(self):
+        return (
+            f"SubmissionResult(\n"
+            f"  part={self.part},\n"
+            f"  passed={self.passed},\n"
+            f"  expected='{self.expected}',\n"
+            f"  actual={self.actual},\n"
+            f"  message={self.message}\n"
+            f")"
+        )
+
+
 class SubmissionStatus(Enum):
     CORRECT = auto()
     INCORRECT = auto()
@@ -28,9 +48,9 @@ class SubmissionResult:
             f"SubmissionResult(\n"
             f"  guess={self.guess},\n"
             f"  result={self.result.name},\n"
-            f"  message='{self.message}',\n"
             f"  is_correct={self.is_correct},\n"
             f"  is_cached={self.is_cached}\n"
+            f"  message='{self.message}',\n"
             f")"
         )
 
