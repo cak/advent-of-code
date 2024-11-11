@@ -5,6 +5,5 @@ description = "This repository contains my solutions for the [Advent of Code](ht
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4>=4.12.3",
     "requests>=2.32.3",
 ]
