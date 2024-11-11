@@ -42,7 +42,7 @@ def submit_answer(
             it will be retrieved from the environment variable 'AOC_SESSION_COOKIE'.
 
     Returns:
-        SubmissionResult: An object containing the result, message, guess, and status.
+        SubmissionResult: An object containing the result, message, guess, status, and cache info.
 
     Raises:
         SubmissionError: If there is an issue submitting the answer.
@@ -60,6 +60,7 @@ def submit_answer(
                 result=cached_guess.status,
                 message=cached_guess.message,
                 is_correct=(cached_guess.status == SubmissionStatus.CORRECT),
+                is_cached=True,  # Indicate the result is from cache
             )
 
     return submit_to_aoc(year, day, level, answer, session_token)
@@ -82,7 +83,7 @@ def submit_to_aoc(
             it will be retrieved from the environment variable 'AOC_SESSION_COOKIE'.
 
     Returns:
-        SubmissionResult: An object containing the result, message, guess, and status.
+        SubmissionResult: An object containing the result, message, guess, status, and cache info.
 
     Raises:
         SubmissionError: If there is an issue submitting the answer.
@@ -143,6 +144,7 @@ def submit_to_aoc(
             result=status,
             message=message,
             is_correct=(status == SubmissionStatus.CORRECT),
+            is_cached=False,
         )
 
     except requests.exceptions.RequestException as e:
@@ -234,7 +236,7 @@ def check_cached_guesses(
                 guess=answer,
                 previous_guess=guess.guess,
                 previous_timestamp=guess.timestamp,
-                status=SubmissionStatus.INCORRECT,
+                status=guess.status,
                 message=get_cached_duplicate_message(
                     answer=answer, previous_guess=guess
                 ),
@@ -270,7 +272,7 @@ def check_cached_guesses(
             ),
         )
 
-    # If no match and no clear bounds, it's a unique guess
+    # If no match and no clear bounds, it's an unknown (unique) guess
     return CachedGuessCheck(
         guess=answer,
         previous_guess=None,

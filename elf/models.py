@@ -21,6 +21,18 @@ class SubmissionResult:
     result: SubmissionStatus
     message: str
     is_correct: bool
+    is_cached: bool
+
+    def __str__(self):
+        return (
+            f"SubmissionResult(\n"
+            f"  guess={self.guess},\n"
+            f"  result={self.result.name},\n"
+            f"  message='{self.message}',\n"
+            f"  is_correct={self.is_correct},\n"
+            f"  is_cached={self.is_cached}\n"
+            f")"
+        )
 
 
 @dataclass
