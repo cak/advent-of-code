@@ -1,24 +1,12 @@
-import os
-import platform
 from pathlib import Path
 
 import requests
 
-from elf.config import get_session_token
+from elf.config import get_cache_input_file, get_session_token
 from elf.exceptions import InputFetchError
 from elf.utils import parse_input
 
 # 🎁 Elf Magic Input Fetcher 🎁 #
-
-
-def get_cache_dir() -> Path:
-    """Return the appropriate cache directory based on the OS."""
-    if platform.system() == "Windows":
-        return (
-            Path(os.getenv("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "elf"
-        )
-    else:
-        return Path(os.getenv("XDG_CACHE_HOME", Path.home() / ".cache")) / "elf"
 
 
 def get_input(year: int, day: int, session_token: str | None = None) -> str:
@@ -42,9 +30,7 @@ def get_input(year: int, day: int, session_token: str | None = None) -> str:
     """
     session_token = get_session_token(session_token)
 
-    # Use user-specific cache directory without external dependencies
-    cache_dir = get_cache_dir()
-    cache_file = cache_dir / f"{year}" / f"day_{day}.txt"
+    cache_file = get_cache_input_file(year, day)
 
     if cache_file.exists():
         return cache_file.read_text(encoding="utf-8").rstrip()

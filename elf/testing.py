@@ -60,10 +60,10 @@ def check_part1_solution(
     if expected_output_lines[0]:
         result = part1_func(test_data)
         if str(result) == expected_output_lines[0]:
-            print(f"🎅 Part 1 test passed! {get_positive_message()}")
+            print(f"🎅 Part 1 test passed! {get_positive_message(answer=result)}")
         else:
             print(
-                f"🎄 Part 1 failed: Expected {expected_output_lines[0]}, got {result}. {get_negative_message()}"
+                f"🎄 Part 1 failed: Expected {expected_output_lines[0]}, got {result}. {get_negative_message(answer=result)}"
             )
     else:
         print("🎄 Part 1 expected output is missing. Please check the expected output.")
@@ -93,10 +93,10 @@ def check_part2_solution(
     if len(expected_output_lines) > 1 and expected_output_lines[1]:
         result = part2_func(test_data)
         if str(result) == expected_output_lines[1]:
-            print(f"🎅 Part 2 test passed! {get_positive_message()}")
+            print(f"🎅 Part 2 test passed! {get_positive_message(answer=result)}")
         else:
             print(
-                f"🎄 Part 2 failed: Expected {expected_output_lines[1]}, got {result}. {get_negative_message()}"
+                f"🎄 Part 2 failed: Expected {expected_output_lines[1]}, got {result}. {get_negative_message(answer=result)}"
             )
     else:
         print("🎄 Part 2 expected output is missing or empty. Skipping Part 2 test.")

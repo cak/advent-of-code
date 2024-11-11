@@ -2,8 +2,6 @@ import time
 from functools import wraps
 from typing import Any, Callable
 
-from elf.messages import get_timer_message
-
 # 🎁 Elf Utility Functions 🎁 #
 
 
@@ -43,7 +41,7 @@ def timer(enabled: bool = True) -> Callable[[Callable[..., Any]], Callable[..., 
             if enabled:
                 end_time = time.perf_counter()
                 print(
-                    f"⏱️ Function '{func.__name__}' took {end_time - start_time:.6f}s to complete. {get_timer_message()}"
+                    f"⏱️ Function '{func.__name__}' took {end_time - start_time:.6f}s to complete 🎅."
                 )
             return result
 
