@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum, auto
+from enum import StrEnum, auto
 
 # 🎁 Elf Models 🎁 #
 
@@ -25,7 +25,7 @@ class TestResult:
         )
 
 
-class SubmissionStatus(Enum):
+class SubmissionStatus(StrEnum):
     CORRECT = auto()
     INCORRECT = auto()
     TOO_HIGH = auto()
@@ -55,7 +55,7 @@ class SubmissionResult:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class Guess:
     timestamp: datetime
     part: int

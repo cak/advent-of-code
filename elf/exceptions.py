@@ -2,27 +2,34 @@
 
 
 class ElfError(Exception):
-    """Base exception for elf package errors.
+    """Base exception for elf package errors."""
 
-    🎅 The elves have encountered a hitch in their work! 🚨
-    """
-
-    pass
+    def __init__(self, message=None):
+        super().__init__(message)
+        self.add_note("🎅 The elves have encountered a hitch in their work! 🚨")
 
 
 class InputFetchError(ElfError):
-    """Raised when there is an issue fetching the puzzle input.
-
-    🎅 Oh no! The elves couldn't fetch the input! 🚨
-    """
-
-    pass
+    def __init__(self, message=None):
+        super().__init__(message)
+        self.add_note(
+            "🎅 The elves are working hard to fetch the input. Please check your network connection or session token. 🚨"
+        )
 
 
 class SubmissionError(ElfError):
-    """Raised when there is an issue submitting the answer.
+    """Raised when there is an issue submitting the answer."""
 
-    🎅 Santa couldn't deliver your answer! 🚨
-    """
+    def __init__(self, message=None):
+        super().__init__(message)
+        self.add_note("🎅 Santa couldn't deliver your answer! 🚨")
 
-    pass
+
+class MissingSessionTokenError(ValueError):
+    """Exception raised when the session token is missing."""
+
+    def __init__(self, env_var: str):
+        super().__init__(
+            f"🎅 Oh no! Santa's session cookie is missing. Please set the '{env_var}' "
+            "environment variable or pass the session token explicitly. 🎄"
+        )
