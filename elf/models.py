@@ -37,7 +37,7 @@ class SubmissionStatus(Enum):
 
 @dataclass
 class SubmissionResult:
-    guess: int
+    guess: int | str
     result: SubmissionStatus
     message: str
     is_correct: bool

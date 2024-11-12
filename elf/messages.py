@@ -5,7 +5,7 @@ from elf.models import Guess
 # 🎄 Elf Message Generator 🎄 #
 
 
-def get_positive_message(answer: int) -> str:
+def get_positive_message(answer: int | str) -> str:
     messages: list[str] = [
         f"🎉 Congratulations! {answer} is correct! The elves are dancing with joy! 🎉",
         f"🎄 Fantastic! You've unlocked the magic number {answer}! Santa is thrilled! 🎄",
@@ -47,7 +47,7 @@ def get_negative_message(answer: int) -> str:
     return random.choice(messages)
 
 
-def get_correct_answer_message(answer: int) -> str:
+def get_correct_answer_message(answer: int | str) -> str:
     messages: list[str] = [
         f"🎉 {answer} is Correct! The sleigh is ready to fly! 🎉",
         f"🎄 Ho ho ho! Santa approves {answer} as your answer! 🎄",
@@ -63,7 +63,7 @@ def get_correct_answer_message(answer: int) -> str:
     return random.choice(messages)
 
 
-def get_answer_too_high_message(answer: int) -> str:
+def get_answer_too_high_message(answer: int | str) -> str:
     messages: list[str] = [
         f"🎅 Oops! {answer} is too high. Try bringing it down a notch! 🎁",
         f"🌨️ {answer} is a bit too much. Maybe think smaller! ❄️",
@@ -79,7 +79,7 @@ def get_answer_too_high_message(answer: int) -> str:
     return random.choice(messages)
 
 
-def get_answer_too_low_message(answer: int) -> str:
+def get_answer_too_low_message(answer: int | str) -> str:
     messages: list[str] = [
         f"🎅 Hmm, {answer} is too low. Let's raise the stakes! 🎁",
         f"🔥 {answer} is almost there! Try going a bit higher! 🎄",
@@ -132,7 +132,7 @@ def get_already_completed_message() -> str:
     return random.choice(messages)
 
 
-def get_incorrect_answer_message(answer: int) -> str:
+def get_incorrect_answer_message(answer: int | str) -> str:
     messages: list[str] = [
         f"🎅 {answer} is not quite the right answer. Keep trying! 🎄",
         f"❄️ {answer} is not it, but don't give up! The answer is out there! ❄️",
@@ -164,7 +164,7 @@ def get_unexpected_response_message() -> str:
     return random.choice(messages)
 
 
-def get_cached_low_message(answer: int, highest_low_guess: Guess) -> str:
+def get_cached_low_message(answer: int | str, highest_low_guess: Guess) -> str:
     # Format the timestamp to a readable string, e.g., "December 1 at 10:15 AM"
     time_str = highest_low_guess.timestamp.strftime("%B %d at %I:%M %p")
     messages: list[str] = [
@@ -182,7 +182,7 @@ def get_cached_low_message(answer: int, highest_low_guess: Guess) -> str:
     return random.choice(messages)
 
 
-def get_cached_high_message(answer: int, lowest_high_guess: Guess) -> str:
+def get_cached_high_message(answer: int | str, lowest_high_guess: Guess) -> str:
     # Format the timestamp to a readable string
     time_str = lowest_high_guess.timestamp.strftime("%B %d at %I:%M %p")
     messages: list[str] = [
@@ -200,7 +200,7 @@ def get_cached_high_message(answer: int, lowest_high_guess: Guess) -> str:
     return random.choice(messages)
 
 
-def get_cached_duplicate_message(answer: int, previous_guess: Guess) -> str:
+def get_cached_duplicate_message(answer: int | str, previous_guess: Guess) -> str:
     # Format the timestamp to a readable string
     time_str = previous_guess.timestamp.strftime("%B %d at %I:%M %p")
     messages: list[str] = [

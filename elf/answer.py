@@ -26,7 +26,7 @@ from elf.models import CachedGuessCheck, Guess, SubmissionResult, SubmissionStat
 
 
 def submit_answer(
-    year: int, day: int, level: int, answer: int, session_token: str | None = None
+    year: int, day: int, level: int, answer: int | str, session_token: str | None = None
 ) -> SubmissionResult:
     """
     Submit an answer for a specific year, day, and level (part) to Advent of Code.
@@ -37,7 +37,7 @@ def submit_answer(
         year (int): The year of the Advent of Code challenge.
         day (int): The day of the challenge (1–25).
         level (int): The level of the challenge (1 for Part 1, 2 for Part 2).
-        answer (int): Your answer to submit.
+        answer (int | str): Your answer to submit.
         session_token (Optional[str]): Your session token. If not provided,
             it will be retrieved from the environment variable 'AOC_SESSION_COOKIE'.
 
@@ -67,7 +67,7 @@ def submit_answer(
 
 
 def submit_to_aoc(
-    year: int, day: int, level: int, answer: int, session_token: str | None = None
+    year: int, day: int, level: int, answer: int | str, session_token: str | None = None
 ) -> SubmissionResult:
     """
     Submit an answer for a specific year, day, and level (part) to Advent of Code.
@@ -78,7 +78,7 @@ def submit_to_aoc(
         year (int): The year of the Advent of Code challenge.
         day (int): The day of the challenge (1–25).
         level (int): The level of the challenge (1 for Part 1, 2 for Part 2).
-        answer (int): Your answer to submit.
+        answer (int | str): Your answer to submit.
         session_token (Optional[str]): Your session token. If not provided,
             it will be retrieved from the environment variable 'AOC_SESSION_COOKIE'.
 
@@ -154,7 +154,7 @@ def submit_to_aoc(
 
 
 def write_guess_cache(
-    year: int, day: int, part: int, guess: int, status: SubmissionStatus
+    year: int, day: int, part: int, guess: int | str, status: SubmissionStatus
 ) -> None:
     """Write the user's guess to the cache file."""
     cache_file = get_cache_guess_file(year, day)
@@ -216,7 +216,7 @@ def read_guesses(year: int, day: int) -> list[Guess]:
 
 
 def check_cached_guesses(
-    year: int, day: int, level: int, answer: int
+    year: int, day: int, level: int, answer: int | str
 ) -> CachedGuessCheck:
     """Check the cache for previous guesses and return a CachedGuessCheck instance."""
     guesses = read_guesses(year, day)
