@@ -1,6 +1,7 @@
 import time
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 # 🎁 Elf Utility Functions 🎁 #
 
@@ -19,9 +20,7 @@ def parse_input(input_str: str) -> list[str]:
     return input_str.strip().splitlines()
 
 
-def timer(
-    enabled: bool = True, logger: Callable[[str]] | None = None
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def timer(enabled: bool = True, logger: Callable[[str], None] | None = None):
     """Decorator to measure the execution time of functions.
 
     🕒 Timing the magic of your functions! ✨
