@@ -1,6 +1,6 @@
 import csv
+import html.parser
 import os
-import re
 from datetime import datetime
 from pathlib import Path
 
@@ -66,6 +66,25 @@ def submit_answer(
     return submit_to_aoc(year, day, level, answer, session_token)
 
 
+class AocResponseParser(html.parser.HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_article = False
+        self.article_content = ""
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "article":
+            self.in_article = True
+
+    def handle_endtag(self, tag):
+        if tag == "article":
+            self.in_article = False
+
+    def handle_data(self, data):
+        if self.in_article:
+            self.article_content += data
+
+
 def submit_to_aoc(
     year: int, day: int, level: int, answer: int | str, session_token: str | None = None
 ) -> SubmissionResult:
@@ -101,13 +120,10 @@ def submit_to_aoc(
         response = requests.post(url, headers=headers, data=data)
         response.raise_for_status()
 
-        # Use regex to extract content inside <article> tags
-        match = re.search(r"<article[^>]*>(.*?)</article>", response.text, re.DOTALL)
-        if match:
-            message_content = match.group(1).strip()
-
-            # Match the message to known responses
-            if "That's the right answer" in message_content:
+        # Use the AocResponseParser to extract content inside <article> tags
+        parser = AocResponseParser()
+        parser.feed(response.text)
+        message_content = parser.article_content.strip()
                 message = get_correct_answer_message(answer=answer)
                 status = SubmissionStatus.CORRECT
             elif "too high" in message_content:
@@ -195,7 +211,6 @@ def read_guesses(year: int, day: int) -> list[Guess]:
 
     # Check if the file exists
     if not cache_file.exists():
-        print(f"{cache_file} does not exist. Returning an empty list.")
         return guesses
 
     # Open and read the file if it exists
