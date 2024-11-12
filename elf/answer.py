@@ -124,32 +124,36 @@ def submit_to_aoc(
         parser = AocResponseParser()
         parser.feed(response.text)
         message_content = parser.article_content.strip()
+
+        # Match the message to known responses using match-case
+        match message_content:
+            case content if not content:
+                message = (
+                    "🎄 Answer submitted, but no response message was found. "
+                    "Check your submission on the Advent of Code website."
+                )
+                status = SubmissionStatus.UNKNOWN
+            case content if "That's the right answer" in content:
                 message = get_correct_answer_message(answer=answer)
                 status = SubmissionStatus.CORRECT
-            elif "too high" in message_content:
+            case content if "too high" in content:
                 message = get_answer_too_high_message(answer=answer)
                 status = SubmissionStatus.TOO_HIGH
-            elif "too low" in message_content:
+            case content if "too low" in content:
                 message = get_answer_too_low_message(answer=answer)
                 status = SubmissionStatus.TOO_LOW
-            elif "You gave an answer too recently" in message_content:
+            case content if "You gave an answer too recently" in content:
                 message = get_recent_submission_message()
                 status = SubmissionStatus.WAIT
-            elif "Did you already complete it" in message_content:
+            case content if "Did you already complete it" in content:
                 message = get_already_completed_message()
                 status = SubmissionStatus.COMPLETED
-            elif "That's not the right answer" in message_content:
+            case content if "That's not the right answer" in content:
                 message = get_incorrect_answer_message(answer=answer)
                 status = SubmissionStatus.INCORRECT
-            else:
+            case _:
                 message = get_unexpected_response_message()
                 status = SubmissionStatus.UNKNOWN
-        else:
-            message = (
-                "🎄 Answer submitted, but no response message was found. "
-                "Check your submission on the Advent of Code website."
-            )
-            status = SubmissionStatus.UNKNOWN
 
         # Write the guess to cache with the status, except for 'wait' and 'completed'
         if status not in (SubmissionStatus.WAIT, SubmissionStatus.COMPLETED):
