@@ -1,4 +1,6 @@
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import requests
 
@@ -59,16 +61,20 @@ def get_input(year: int, day: int, session_token: str | None = None) -> str:
         ) from e
 
 
-def read_input_file(filename: str | Path) -> list[str]:
+def read_input_file(
+    filename: str | Path, parser: Callable[[str], Any] = parse_input
+) -> Any:
     """Reads and parses the input file from the given filename.
 
     🎁 Unwrapping the puzzle input from the specified file! 🎄
 
     Args:
-        filename (str | Path): The path to the input file.
+        filename (Union[str, Path]): The path to the input file.
+        parser (Callable[[str], Any]): A function that takes the file content as a string and returns the parsed data.
+            Defaults to `parse_input`.
 
     Returns:
-        list[str]: A list of input lines.
+        Any: The parsed data as returned by the parser function.
 
     Raises:
         FileNotFoundError: If the input file does not exist.
@@ -78,4 +84,4 @@ def read_input_file(filename: str | Path) -> list[str]:
         raise FileNotFoundError(
             f"❗ {filepath} not found. 🎄 The elves must have misplaced it! 🎁"
         )
-    return parse_input(filepath.read_text())
+    return parser(filepath.read_text())
