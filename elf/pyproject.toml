@@ -5,7 +5,6 @@ description = "A festive helper package for Advent of Code."
 authors = [{ name = "Caleb", email = "caleb@typeerror.com" }]
 license = "MIT"
 dependencies = ["requests"]
-requires-python = ">=3.12"
 
 [project.scripts]
 elf = "elf.cli.main:main"

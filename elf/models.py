@@ -5,7 +5,7 @@ from enum import StrEnum, auto
 # 🎁 Elf Models 🎁 #
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class TestResult:
     part: int
     passed: bool
@@ -13,14 +13,14 @@ class TestResult:
     actual: str
     message: str
 
-    def __str__(self):
+    def __repr__(self):
         return (
-            f"SubmissionResult(\n"
+            f"TestResult(\n"
             f"  part={self.part},\n"
             f"  passed={self.passed},\n"
             f"  expected='{self.expected}',\n"
-            f"  actual={self.actual},\n"
-            f"  message={self.message}\n"
+            f"  actual='{self.actual}',\n"
+            f"  message='{self.message}'\n"
             f")"
         )
 
@@ -35,7 +35,7 @@ class SubmissionStatus(StrEnum):
     UNKNOWN = auto()
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class SubmissionResult:
     guess: int | str
     result: SubmissionStatus
@@ -43,14 +43,14 @@ class SubmissionResult:
     is_correct: bool
     is_cached: bool
 
-    def __str__(self):
+    def __repr__(self):
         return (
             f"SubmissionResult(\n"
             f"  guess={self.guess},\n"
             f"  result={self.result.name},\n"
             f"  is_correct={self.is_correct},\n"
-            f"  is_cached={self.is_cached}\n"
-            f"  message='{self.message}',\n"
+            f"  is_cached={self.is_cached},\n"
+            f"  message='{self.message}'\n"
             f")"
         )
 
@@ -59,20 +59,24 @@ class SubmissionResult:
 class Guess:
     timestamp: datetime
     part: int
-    guess: int
+    guess: int | str
     status: SubmissionStatus
 
-    def is_too_low(self, answer: int) -> bool:
-        return self.guess < answer and self.status == SubmissionStatus.TOO_LOW
+    def is_too_low(self, answer: int | str) -> bool:
+        if isinstance(self.guess, int) and isinstance(answer, int):
+            return self.guess < answer and self.status == SubmissionStatus.TOO_LOW
+        return False
 
-    def is_too_high(self, answer: int) -> bool:
-        return self.guess > answer and self.status == SubmissionStatus.TOO_HIGH
+    def is_too_high(self, answer: int | str) -> bool:
+        if isinstance(self.guess, int) and isinstance(answer, int):
+            return self.guess > answer and self.status == SubmissionStatus.TOO_HIGH
+        return False
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class CachedGuessCheck:
-    guess: int
-    previous_guess: int | None
+    guess: int | str
+    previous_guess: int | str | None
     previous_timestamp: datetime | None
     status: SubmissionStatus
     message: str

@@ -1,6 +1,7 @@
 import time
 from collections.abc import Callable
 from functools import wraps
+from pathlib import Path
 from typing import Any
 
 # 🎁 Elf Utility Functions 🎁 #
@@ -57,3 +58,32 @@ def timer(enabled: bool = True, logger: Callable[[str], None] | None = None):
         return wrapper
 
     return decorator
+
+
+def read_test_input(base_dir: Path) -> str:
+    """Read test input from test_input.txt file."""
+    test_input_file = base_dir / "test_input.txt"
+    if test_input_file.exists():
+        return test_input_file.read_text().strip()
+    else:
+        raise FileNotFoundError(
+            "🛑 No test_input.txt found. Please add test input data."
+        )
+
+
+def read_expected_output(base_dir: Path) -> str:
+    """Read expected output from expected_output.txt file."""
+    expected_output_file = base_dir / "expected_output.txt"
+    if expected_output_file.exists():
+        expected_output_lines = expected_output_file.read_text().strip().splitlines()
+        expected_part1 = (
+            expected_output_lines[0] if len(expected_output_lines) > 0 else ""
+        )
+        expected_part2 = (
+            expected_output_lines[1] if len(expected_output_lines) > 1 else ""
+        )
+        return f"{expected_part1}\n{expected_part2}"
+    else:
+        raise FileNotFoundError(
+            "🛑 No expected_output.txt found. Please add expected output data."
+        )

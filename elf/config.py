@@ -21,7 +21,7 @@ def get_session_token(session_token: str | None = None) -> str:
         str: The session token.
 
     Raises:
-        ValueError: If the session token is not provided and not found in the environment.
+        MissingSessionTokenError: If the session token is not provided and not found in the environment.
     """
     env_var = "AOC_SESSION_COOKIE"
     if session_token:

@@ -1,7 +1,8 @@
 import csv
-import html.parser
-import os
+import logging
 from datetime import datetime
+from enum import Enum, auto
+from html.parser import HTMLParser
 from pathlib import Path
 
 import requests
@@ -20,7 +21,16 @@ from elf.messages import (
     get_recent_submission_message,
     get_unexpected_response_message,
 )
-from elf.models import CachedGuessCheck, Guess, SubmissionResult, SubmissionStatus
+from elf.models import (
+    CachedGuessCheck,
+    Guess,
+    SubmissionResult,
+    SubmissionStatus,
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 🎄 Elf Answer Submission 🎄 #
 
@@ -66,7 +76,7 @@ def submit_answer(
     return submit_to_aoc(year, day, level, answer, session_token)
 
 
-class AocResponseParser(html.parser.HTMLParser):
+class AocResponseParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.in_article = False
@@ -83,6 +93,36 @@ class AocResponseParser(html.parser.HTMLParser):
     def handle_data(self, data):
         if self.in_article:
             self.article_content += data
+
+
+class AocMessageType(Enum):
+    EMPTY = auto()
+    CORRECT = auto()
+    TOO_HIGH = auto()
+    TOO_LOW = auto()
+    RECENT_SUBMISSION = auto()
+    ALREADY_COMPLETED = auto()
+    INCORRECT = auto()
+    UNEXPECTED = auto()
+
+
+def classify_message(content: str) -> AocMessageType:
+    if not content:
+        return AocMessageType.EMPTY
+    elif "That's the right answer" in content:
+        return AocMessageType.CORRECT
+    elif "too high" in content:
+        return AocMessageType.TOO_HIGH
+    elif "too low" in content:
+        return AocMessageType.TOO_LOW
+    elif "You gave an answer too recently" in content:
+        return AocMessageType.RECENT_SUBMISSION
+    elif "Did you already complete it" in content:
+        return AocMessageType.ALREADY_COMPLETED
+    elif "That's not the right answer" in content:
+        return AocMessageType.INCORRECT
+    else:
+        return AocMessageType.UNEXPECTED
 
 
 def submit_to_aoc(
@@ -125,33 +165,34 @@ def submit_to_aoc(
         parser.feed(response.text)
         message_content = parser.article_content.strip()
 
-        # Match the message to known responses using match-case
-        match message_content:
-            case content if not content:
+        # Classify the message
+        message_type = classify_message(message_content)
+        match message_type:
+            case AocMessageType.EMPTY:
                 message = (
                     "🎄 Answer submitted, but no response message was found. "
                     "Check your submission on the Advent of Code website."
                 )
                 status = SubmissionStatus.UNKNOWN
-            case content if "That's the right answer" in content:
+            case AocMessageType.CORRECT:
                 message = get_correct_answer_message(answer=answer)
                 status = SubmissionStatus.CORRECT
-            case content if "too high" in content:
+            case AocMessageType.TOO_HIGH:
                 message = get_answer_too_high_message(answer=answer)
                 status = SubmissionStatus.TOO_HIGH
-            case content if "too low" in content:
+            case AocMessageType.TOO_LOW:
                 message = get_answer_too_low_message(answer=answer)
                 status = SubmissionStatus.TOO_LOW
-            case content if "You gave an answer too recently" in content:
+            case AocMessageType.RECENT_SUBMISSION:
                 message = get_recent_submission_message()
                 status = SubmissionStatus.WAIT
-            case content if "Did you already complete it" in content:
+            case AocMessageType.ALREADY_COMPLETED:
                 message = get_already_completed_message()
                 status = SubmissionStatus.COMPLETED
-            case content if "That's not the right answer" in content:
+            case AocMessageType.INCORRECT:
                 message = get_incorrect_answer_message(answer=answer)
                 status = SubmissionStatus.INCORRECT
-            case _:
+            case AocMessageType.UNEXPECTED:
                 message = get_unexpected_response_message()
                 status = SubmissionStatus.UNKNOWN
 
@@ -168,6 +209,7 @@ def submit_to_aoc(
         )
 
     except requests.exceptions.RequestException as e:
+        logger.error(f"Request exception occurred: {e}")
         raise SubmissionError(
             f"🛑 Uh-oh! An error occurred while submitting your answer: {e} 🎁"
         ) from e
@@ -180,20 +222,21 @@ def write_guess_cache(
     cache_file = get_cache_guess_file(year, day)
 
     # Get the current timestamp in ISO 8601 format
-    timestamp = datetime.now().isoformat()
+    timestamp = datetime.utcnow().isoformat()
 
     # Define the header
     fieldnames = ["timestamp", "part", "guess", "status"]
 
     try:
-        # Open the CSV file in append mode
-        with open(cache_file, "a", newline="") as csvfile:
-            # Create a DictWriter object
+        # Determine if the file exists to decide on writing the header
+        file_exists = cache_file.exists()
+
+        # Open the CSV file in append mode using pathlib
+        with cache_file.open("a", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
-            # If the file is empty, write the header
-            csvfile.seek(0, os.SEEK_END)
-            if csvfile.tell() == 0:
+            # Write the header if the file is new
+            if not file_exists:
                 writer.writeheader()
 
             # Write the guess data as a new row
@@ -205,31 +248,53 @@ def write_guess_cache(
                     "status": status.name,
                 }
             )
+    except OSError as e:
+        logger.error(f"OS error while writing to {cache_file}: {e}")
     except Exception as e:
-        print(f"An error occurred while writing to {cache_file}: {e}")
+        logger.exception(f"Unexpected error while writing to {cache_file}: {e}")
 
 
 def read_guesses(year: int, day: int) -> list[Guess]:
     cache_file: Path = get_cache_guess_file(year, day)
     guesses = []
 
-    # Check if the file exists
     if not cache_file.exists():
         return guesses
 
-    # Open and read the file if it exists
-    with open(cache_file, "r") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            # Create a Guess object for each row
-            status = SubmissionStatus[row["status"]]
-            guess = Guess(
-                timestamp=datetime.fromisoformat(row["timestamp"]),
-                part=int(row["part"]),
-                guess=int(row["guess"]),
-                status=status,
-            )
-            guesses.append(guess)
+    try:
+        with cache_file.open("r", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                try:
+                    status = SubmissionStatus[row["status"]]
+                except KeyError:
+                    logger.warning(f"Unknown status '{row['status']}' in cache.")
+                    status = SubmissionStatus.UNKNOWN
+
+                guess_value = row["guess"]
+                # Try to convert to int if possible
+                try:
+                    guess_value = int(guess_value)
+                except ValueError:
+                    pass  # Keep as str if not an int
+
+                try:
+                    timestamp = datetime.fromisoformat(row["timestamp"])
+                except ValueError:
+                    logger.warning(f"Invalid timestamp format: {row['timestamp']}")
+                    timestamp = datetime.utcnow()
+
+                guess = Guess(
+                    timestamp=timestamp,
+                    part=int(row["part"]),
+                    guess=guess_value,
+                    status=status,
+                )
+                guesses.append(guess)
+    except OSError as e:
+        logger.error(f"OS error while reading {cache_file}: {e}")
+    except Exception as e:
+        logger.exception(f"Unexpected error while reading {cache_file}: {e}")
 
     return guesses
 
@@ -239,59 +304,73 @@ def check_cached_guesses(
 ) -> CachedGuessCheck:
     """Check the cache for previous guesses and return a CachedGuessCheck instance."""
     guesses = read_guesses(year, day)
-    answer = int(answer)
+    highest_low_guess: Guess | None = None
+    lowest_high_guess: Guess | None = None
 
-    highest_low_guess: Guess | None = None  # Highest 'too low' guess for this level
-    lowest_high_guess: Guess | None = None  # Lowest 'too high' guess for this level
-
-    # Loop through previous guesses to find bounds
     for guess in guesses:
         if guess.part != level:
             continue
 
-        # If there's an exact match
-        if guess.guess == answer:
-            return CachedGuessCheck(
-                guess=answer,
-                previous_guess=guess.guess,
-                previous_timestamp=guess.timestamp,
-                status=guess.status,
-                message=get_cached_duplicate_message(
-                    answer=answer, previous_guess=guess
-                ),
-            )
+        match guess:
+            case Guess(guess=ans, status=SubmissionStatus.CORRECT) if ans == answer:
+                return CachedGuessCheck(
+                    guess=answer,
+                    previous_guess=guess.guess,
+                    previous_timestamp=guess.timestamp,
+                    status=guess.status,
+                    message=get_cached_duplicate_message(
+                        answer=answer, previous_guess=guess
+                    ),
+                )
+            case Guess(guess=ans, status=SubmissionStatus.TOO_LOW) if isinstance(
+                ans, int
+            ) and isinstance(answer, int):
+                # Ensure highest_low_guess.guess is int before comparison
+                if not highest_low_guess or (
+                    isinstance(highest_low_guess.guess, int)
+                    and ans > highest_low_guess.guess
+                ):
+                    highest_low_guess = guess
+            case Guess(guess=ans, status=SubmissionStatus.TOO_HIGH) if isinstance(
+                ans, int
+            ) and isinstance(answer, int):
+                # Ensure lowest_high_guess.guess is int before comparison
+                if not lowest_high_guess or (
+                    isinstance(lowest_high_guess.guess, int)
+                    and ans < lowest_high_guess.guess
+                ):
+                    lowest_high_guess = guess
+            case _:
+                continue
 
-        # Track bounds based on previous 'too low' and 'too high' guesses
-        if guess.status == SubmissionStatus.TOO_LOW and guess.guess < answer:
-            if highest_low_guess is None or guess.guess > highest_low_guess.guess:
-                highest_low_guess = guess
-        elif guess.status == SubmissionStatus.TOO_HIGH and guess.guess > answer:
-            if lowest_high_guess is None or guess.guess < lowest_high_guess.guess:
-                lowest_high_guess = guess
+    if isinstance(answer, int):
+        match (highest_low_guess, lowest_high_guess):
+            case (h_low, _) if h_low and isinstance(
+                h_low.guess, int
+            ) and answer <= h_low.guess:
+                return CachedGuessCheck(
+                    guess=answer,
+                    previous_guess=h_low.guess,
+                    previous_timestamp=h_low.timestamp,
+                    status=SubmissionStatus.TOO_LOW,
+                    message=get_cached_low_message(
+                        answer=answer, highest_low_guess=h_low
+                    ),
+                )
+            case (_, l_high) if l_high and isinstance(
+                l_high.guess, int
+            ) and answer >= l_high.guess:
+                return CachedGuessCheck(
+                    guess=answer,
+                    previous_guess=l_high.guess,
+                    previous_timestamp=l_high.timestamp,
+                    status=SubmissionStatus.TOO_HIGH,
+                    message=get_cached_high_message(
+                        answer=answer, lowest_high_guess=l_high
+                    ),
+                )
 
-    # Check if the new guess is inferably too low or too high based on bounds
-    if highest_low_guess and answer <= highest_low_guess.guess:
-        return CachedGuessCheck(
-            guess=answer,
-            previous_guess=highest_low_guess.guess,
-            previous_timestamp=highest_low_guess.timestamp,
-            status=SubmissionStatus.TOO_LOW,
-            message=get_cached_low_message(
-                answer=answer, highest_low_guess=highest_low_guess
-            ),
-        )
-    elif lowest_high_guess and answer >= lowest_high_guess.guess:
-        return CachedGuessCheck(
-            guess=answer,
-            previous_guess=lowest_high_guess.guess,
-            previous_timestamp=lowest_high_guess.timestamp,
-            status=SubmissionStatus.TOO_HIGH,
-            message=get_cached_high_message(
-                answer=answer, lowest_high_guess=lowest_high_guess
-            ),
-        )
-
-    # If no match and no clear bounds, it's an unknown (unique) guess
+    # Return unknown if no bounds could be inferred
     return CachedGuessCheck(
         guess=answer,
         previous_guess=None,

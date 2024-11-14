@@ -3,23 +3,15 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-# 🎄 Define the base directory (one level up from the script location) 🎄
-BASE_DIR = Path(__file__).resolve().parent
-
-# Add the project root to sys.path if not installing elf as a package
-if str(BASE_DIR) not in sys.path:
-    sys.path.append(str(BASE_DIR))
-
-import elf  # Import elf after modifying sys.path  # noqa: E402
-from elf.models import TestResult  # noqa: E402
+import elf
+from elf.models import TestResult
+from elf.utils import read_expected_output, read_test_input
 
 
 # 🎅 Festive Argument Handling for Advent of Code 🎅 #
 def args(
     part1: Callable[[list[str]], int],
     part2: Callable[[list[str]], int],
-    expected_output: str | Path,
-    test_input: str | Path,
     base_dir: Path,
 ) -> None:
     parser = argparse.ArgumentParser(
@@ -40,7 +32,7 @@ def args(
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Run tests using inline test data. 🎁",
+        help="Run tests using test_input.txt and expected_output.txt. 🎁",
     )
     args = parser.parse_args()
 
@@ -55,29 +47,38 @@ def args(
     if args.test:
         print("🔍 Running tests... Let's see if the elves approve!")
 
-        if args.part in ("1", "both"):
-            part1_result: TestResult = elf.check_part1_solution(
-                part1_func=part1,
-                test_input=test_input,
-                expected_output=expected_output,
-            )
-            print(part1_result.message)
-            if not part1_result.passed:
-                print("❌ Part 1 Test Failed.")
-                sys.exit(1)
+        try:
+            test_input = read_test_input(base_dir)
+            expected_output = read_expected_output(base_dir)
 
-        if args.part in ("2", "both"):
-            part2_result: TestResult = elf.check_part2_solution(
-                part2_func=part2,
-                test_input=test_input,
-                expected_output=expected_output,
-            )
-            print(part2_result.message)
-            if not part2_result.passed:
-                print("❌ Part 2 Test Failed.")
-                sys.exit(1)
+            if args.part in ("1", "both"):
+                part1_result: TestResult = elf.check_part1_solution(
+                    part1_func=part1,
+                    test_input=test_input,
+                    expected_output=expected_output,
+                )
+                print(part1_result.message)
+                if not part1_result.passed:
+                    print("❌ Part 1 Test Failed.")
+                    sys.exit(1)
 
-        print("✅ All tests completed. The elves are dancing with joy! 🎉")
+            if args.part in ("2", "both"):
+                part2_result: TestResult = elf.check_part2_solution(
+                    part2_func=part2,
+                    test_input=test_input,
+                    expected_output=expected_output,
+                )
+                print(part2_result.message)
+                if not part2_result.passed:
+                    print("❌ Part 2 Test Failed.")
+                    sys.exit(1)
+
+            print("✅ All tests completed. The elves are dancing with joy! 🎉")
+
+        except FileNotFoundError as e:
+            print(f"❌ Error: {e}")
+            sys.exit(1)
+
     else:
         # Read or fetch input data
         if input_file.exists():
