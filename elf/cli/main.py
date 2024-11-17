@@ -17,6 +17,12 @@ def main():
     )
     create_day_parser.add_argument("year", type=int, help="Year (e.g., 2024)")
     create_day_parser.add_argument("day", type=int, help="Day number (1-25)")
+    create_day_parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=".",
+        help="Directory to create the day folder in (default: current directory).",
+    )
 
     # Subcommand: fetch-input
     fetch_input_parser = subparsers.add_parser(
@@ -58,7 +64,7 @@ def main():
 
     # Dispatch to the appropriate subcommand handler
     if args.command == "create-day":
-        create_day.main(args.year, args.day)
+        create_day.main(args.year, args.day, args.output_dir)
     elif args.command == "fetch-input":
         fetch_input.main(args.year, args.day)
     elif args.command == "run":

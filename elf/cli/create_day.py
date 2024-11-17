@@ -1,6 +1,9 @@
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
+
+import elf
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = Path(os.getenv("ELF_TEMPLATE_DIR", BASE_DIR / "templates"))
@@ -8,35 +11,23 @@ template_file = Path(
     os.getenv("ELF_TEMPLATE_FILE", TEMPLATE_DIR / "solution_template.py")
 )
 
-import elf  # Import elf after modifying sys.path  # noqa: E402
-
-# 🎄 Cozy Christmas Utility Functions 🎄 #
-
 
 def create_directory(path: Path) -> None:
     """Create a directory if it doesn't already exist."""
     try:
         path.mkdir(parents=True, exist_ok=False)
-        print(
-            f"✨ Created directory at {path}. It's like decorating a fresh Christmas tree! 🎄"
-        )
+        print(f"✨ Created directory at {path}. 🎄")
     except FileExistsError:
-        print(
-            f"🎄 Directory already exists at {path}. Time to open the presents inside! 🎁"
-        )
+        print(f"🎁 Directory already exists at {path}. Time to open the presents!")
 
 
 def copy_template(template_path: Path, destination_path: Path) -> None:
     """Copy the solution template to the new day's folder."""
     if template_path.exists():
         shutil.copy(template_path, destination_path)
-        print(
-            f"🎅 Solution template copied to {destination_path}. Let the coding magic begin! ✨"
-        )
+        print(f"🎅 Solution template copied to {destination_path}.")
     else:
-        raise FileNotFoundError(
-            f"⛄ Template not found at {template_path}! The elves must have hidden it! 🔎"
-        )
+        raise FileNotFoundError(f"⛄ Template not found at {template_path}!")
 
 
 def format_day_number(day: int) -> str:
@@ -81,22 +72,24 @@ def fetch_input_file(year: int, day: int, input_file: Path) -> None:
         print("🎁 input.txt already exists. The gift has already been unwrapped! 🎁")
 
 
-# 🎄 Let's Create a New Day of Advent Code Magic! 🎄 #
-
-
-def create_new_day(year: int, day: int) -> None:
+def create_new_day(year: int, day: int, output_dir: str) -> None:
     """Create the folder structure and solution file for the given year and day."""
-    day_str = format_day_number(day)
+    # Resolve the output path, defaulting to the current working directory
+    output_path = Path(output_dir).resolve() if output_dir else Path.cwd()
+    day_str = f"{day:02d}"
 
     # Paths
-    year_dir = BASE_DIR / str(year)
+    year_dir = output_path / str(year)
     day_dir = year_dir / f"day{day_str}"
-    new_solution_file = day_dir / f"day{day_str}.py"
+    new_solution_file = day_dir / "solution.py"
     input_file = day_dir / "input.txt"
 
+    current_year = datetime.now().year
     # Validate year and day
-    if not (1000 <= year <= 9999):
-        raise ValueError(f"Invalid year: {year}. Year must be a 4-digit number.")
+    if not (2015 <= year <= current_year):
+        raise ValueError(
+            f"Invalid year: {year}. Year must be between 2015 and {current_year}."
+        )
     if not (1 <= day <= 25):
         raise ValueError(f"Invalid day: {day}. Day must be between 1 and 25.")
 
@@ -120,6 +113,7 @@ def create_new_day(year: int, day: int) -> None:
     print(f"🎄 Day {day_str} in {year} is ready! Time to code by the fireplace. 🔥")
 
 
-def main(year: int, day: int):
-    print(f"🎄 Creating day structure for {year}, Day {day}...")
-    create_new_day(year, day)
+def main(year: int, day: int, output_dir: str = "") -> None:
+    output_dir = output_dir or str(Path.cwd())  # Default to current working directory
+    print(f"🎄 Creating day structure for {year}, Day {day} in {output_dir}...")
+    create_new_day(year, day, output_dir)
