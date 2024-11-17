@@ -1,3 +1,4 @@
+import string
 from collections import Counter
 from pathlib import Path
 
@@ -40,8 +41,28 @@ def part1(data: list[str]) -> int | str:
 @elf.timer()
 def part2(data: list[str]) -> int | str:
     """🎅 Solve Part 2 of the puzzle 🎅"""
-    # TODO: Implement the solution for Part 2
-    return len(data)
+
+    letters = list(string.ascii_lowercase)
+
+    for line in data:
+        room = line.split("[")[0]
+        # check_sum = line.split("[")[1].split("]")[0]
+        sector_id = int(room.split("-")[-1])
+
+        decrypted = ""
+        for char in room:
+            if char.isalpha() and char.islower():
+                index = letters.index(char)
+                new_letter = letters[(index + sector_id) % len(letters)]
+                decrypted += new_letter
+            elif char == "-":
+                decrypted += " "
+
+        if "north" in decrypted:
+            print(decrypted, sector_id)
+            return sector_id
+
+    return 0
 
 
 if __name__ == "__main__":
