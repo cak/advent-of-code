@@ -2,248 +2,179 @@
 
 Welcome to my festive repository, where code meets Christmas cheer! This collection holds my solutions for the [Advent of Code](https://adventofcode.com/) puzzles across multiple years. Join me as we unwrap new challenges each day of December, guided by the merry elves and sprinkled with holiday magic! ✨
 
-## 📅 Years and Progress
+## 📅 Current Year and Progress
 
-- **[2016](2015/README.md)**: Progress: 1/25
-- **[2015](2015/README.md)**: Progress: 0/25
+- **[2024](2016/README.md)**: Progress: 0/25
 
 ## 🎄 Folder Structure
 
-Our repository is neatly organized, just like gifts under the Christmas tree. Each folder represents a year, and inside, you'll find daily presents waiting to be opened:
+Our repository is structured like a well-organized Christmas workshop! Each year contains folders for individual days, and the `elf` package houses utilities for puzzle-solving and automation:
 
 ```bash
-advent_of_code/
-├── 2015/
+advent-of-code/
+├── 2016/
 │   ├── day01/
-│   │   ├── day01.py                  # 🎁 Solution script for Day 01
-│   │   ├── input.txt                 # 📜 Puzzle input for Day 01
-│   │   └── README.md                 # 📘 Notes and reflections
-├── utils/
-│   ├── __init__.py                   # 🛠️ Makes it a Python package
-│   └── create_day.py                 # 🎅 Script to create new day folders
-├── templates/
-│   └── solution_template.py          # ✨ Template for daily solutions
-└── elf/                              # 🧝‍♂️ The elves' magical helpers!
-    ├── __init__.py
-    ├── config.py
-    ├── input.py                      # 🔄 Fetching and caching puzzle inputs
-    ├── utils.py                      # 🧰 Utility functions
-    ├── testing.py                    # 🧪 Testing helpers
-    └── exceptions.py                 # 🚨 Custom exceptions
+│       ├── solution.py              # 🎁 Your main solution script for the day
+│       ├── input.txt                # 📜 The puzzle input for the day
+│       ├── test_input.txt           # 🧪 Example input for testing your solution
+│       ├── expected_output.txt      # ✅ The expected output for test input
+├── elf/                             # 🧝‍♂️ The elves' magical helpers!
+│   ├── cli/                         # 🎅 Command-line interface for automation
+│       ├── create_day.py            # 🏗️ Script to create new day folders
+│       ├── fetch_input.py           # 🔄 Script to fetch puzzle inputs
+│       ├── run.py                   # 🚀 Script to run a day's solution
+│       ├── submit.py                # 🎯 Script to submit answers to Advent of Code
+│       ├── test.py                  # 🧪 Script to test solutions for correctness
+│   ├── templates/                   # ✨ Templates for new solution files
+│       ├── args.py                  # ⚙️ Argument parsing template for solutions
+│       ├── solution_template.py     # 📝 Template for daily solution scripts
+│   ├── utils.py                     # 🧰 General utility functions for helpers
+│   ├── input.py                     # 🔄 Functions to fetch and cache puzzle inputs
+│   ├── config.py                    # ⚙️ Configuration settings for the project
+│   ├── testing.py                   # 🧪 Tools for testing solutions
+│   ├── answer.py                    # 🎯 Helpers for answer validation and submission
+│   └── exceptions.py                # 🚨 Custom exception handling for the CLI
+├── README.md                        # 📖 Documentation (you're here!)
+├── LICENSE                          # 📜 Open source license
+├── pyproject.toml                   # 📦 Project dependencies and settings
+├── uv.lock                          # 🔒 Dependency lockfile
 ```
 
-## 🎅 Automating Day Folder Creation
+## 🛠️ Automating Tasks with the Elf CLI
 
-The elves have been busy crafting a script to help you set up your daily challenges with ease!
+The `elf` CLI is your all-in-one tool to manage Advent of Code puzzles. From creating folders to running tests, it makes solving puzzles joyful!
 
-### Step 1: Create a New Day Folder
+### Installing Dependencies
 
-Run the `create_day.py` script with the desired year and day:
-
-```bash
-python utils/create_day.py <year> <day>
-```
-
-For example, to create the `day01` folder for 2015:
-
-```bash
-python utils/create_day.py 2015 1
-```
-
-This magical script will:
-
-- Create the necessary folders.
-- Copy the solution template.
-- Fetch your puzzle input and save it to `input.txt` (more on this below).
-- Create `test_input.txt` and `expected_test_output.txt` for your testing needs.
-
-Your folder will look like this:
-
-```bash
-advent_of_code/
-├── 2015/
-│   ├── day01/
-│   │   ├── day01.py
-│   │   ├── input.txt
-│   │   ├── test_input.txt
-│   │   ├── expected_test_output.txt
-│   │   └── README.md
-```
-
-## 🔑 Setting Up Your Advent of Code Session Token
-
-To fetch your personalized puzzle input, the elves need your Advent of Code session token. Don't worry; we'll keep it safe and sound!
-
-### Step 1: Retrieve Your Session Token
-
-1. **Log in to Advent of Code**: Visit [Advent of Code](https://adventofcode.com/) and log in using your preferred method (GitHub, Google, Twitter, etc.).
-2. **Open Browser Developer Tools**:
-   - Right-click anywhere on the page and select **Inspect** (Chrome) or **Inspect Element** (Firefox).
-3. **Find the Session Cookie**:
-   - Navigate to the **Application** (Chrome) or **Storage** (Firefox) tab in the developer tools.
-   - Under **Cookies**, find `session` and copy its value.
-   - **Important**: Keep this value secret; it's like the key to Santa's workshop!
-
-### Step 2: Set the Session Token as an Environment Variable
-
-The elves will read this environment variable to fetch your inputs.
-
-#### On Unix/Linux/MacOS:
-
-```bash
-export AOC_SESSION_COOKIE='your_session_token_here'
-```
-
-#### On Windows Command Prompt:
-
-```cmd
-set AOC_SESSION_COOKIE=your_session_token_here
-```
-
-#### On Windows PowerShell:
-
-```powershell
-$env:AOC_SESSION_COOKIE='your_session_token_here'
-```
-
-**Note**: Replace `'your_session_token_here'` with the actual session token you copied.
-
-### Step 3: Keep It Secret, Keep It Safe
-
-- **Do Not Commit**: Ensure you **never** commit your session token to any repository.
-- **Security First**: Treat it like a cherished gift; only you should know it!
-
-Now, when you run `create_day.py`, the elves can fetch your puzzle input and save it to `input.txt` automatically!
-
-## 🏃 Running the Code
-
-Time to see the elves' magic in action! Here are the ways to run your solutions:
-
-### Running Tests
-
-Navigate to the day's directory and run:
-
-```bash
-python dayXX.py --test
-```
-
-This will:
-
-- Use `test_input.txt` and `expected_test_output.txt` to verify your solution.
-- Let you know if the elves approve of your code!
-
-### Running with Actual Input
-
-Once your code passes the tests, simply run the script without any flags to use your actual puzzle input:
-
-```bash
-python dayXX.py
-```
-
-The elves will process your actual input and provide the results for both parts (or the part you specify).
-
-### Running a Specific Part
-
-You can choose to run either Part 1, Part 2, or both:
-
-```bash
-python dayXX.py --part 1  # Runs only Part 1
-python dayXX.py --part 2  # Runs only Part 2
-python dayXX.py --part both  # Runs both parts
-```
-
-### Skipping Tests
-
-If you want to skip running tests and go straight to the main solution, you can use:
-
-```bash
-python dayXX.py --no-test
-```
-
-### Submitting Your Answer
-
-Once you're confident with your solution, you can submit it directly using the `--submit` flag:
-
-```bash
-python dayXX.py --submit
-```
-
-You can also submit a specific part:
-
-```bash
-python dayXX.py --part 1 --submit  # Submits only Part 1
-python dayXX.py --part 2 --submit  # Submits only Part 2
-```
-
-## 🎁 Using the `elf` Package
-
-The `elf` package is your toolbox of festive functions, crafted to make solving puzzles joyful!
-
-### What's Inside the Elves' Workshop?
-
-- **`input.py`**: Functions to fetch and read puzzle inputs.
-- **`utils.py`**: Handy utilities like input parsing and timing decorators.
-- **`testing.py`**: Tools to help you test your solutions.
-- **`exceptions.py`**: Custom exceptions to handle any mishaps.
-- **`config.py`**: Configuration settings (like your session token).
-
-### Example Usage in Your Solution
-
-```python
-import elf
-from pathlib import Path
-
-def part1(data):
-    # Your solution for part 1
-    pass
-
-def part2(data):
-    # Your solution for part 2
-    pass
-
-if __name__ == "__main__":
-    base_dir = Path(__file__).parent
-    data = elf.read_input_file(base_dir / "input.txt")
-    print("Part 1:", part1(data))
-    print("Part 2:", part2(data))
-```
-
-The elves are always there to lend a helping hand (or hoof)!
-
-## 🛠️ Requirements
-
-To ensure all the elf magic works smoothly, make sure to install the required packages:
+Before you start, install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-The elves recommend using a virtual environment to keep things tidy.
+### Commands Overview
 
-## 🎉 Contributing and Sharing the Joy
+Run the CLI by executing:
 
-Found a better way to solve a puzzle or want to share some holiday cheer? Feel free to open an issue or submit a pull request. Let's make this repository as magical as the season itself!
+```bash
+python -m elf.cli.main <command> [options]
+```
 
-## ✨ License
+Available commands:
 
-This project is licensed under the MIT License. Spread the joy, but remember to give credit where it's due!
+- **`create-day`**: Create a new folder for a specific day.
+- **`fetch-input`**: Fetch puzzle input for a specific day.
+- **`run`**: Run the solution for a specific day and part.
+- **`test`**: Test the solution using provided test inputs.
+- **`submit`**: Submit your solution to Advent of Code.
+
+### Command Details
+
+#### 1. Create a New Day Folder
+
+Set up a new folder for a day, complete with templates and input files:
+
+```bash
+python -m elf.cli.main create-day <year> <day> --output-dir <directory>
+```
+
+Example:
+
+```bash
+python -m elf.cli.main create-day 2016 5
+```
+
+#### 2. Fetch Puzzle Input
+
+Fetch your personalized input for a day:
+
+```bash
+python -m elf.cli.main fetch-input <year> <day>
+```
+
+Example:
+
+```bash
+python -m elf.cli.main fetch-input 2016 5
+```
+
+#### 3. Run a Solution
+
+Run your solution for a specific day and part:
+
+```bash
+python -m elf.cli.main run <year> <day> --part <1|2|both>
+```
+
+Examples:
+
+```bash
+python -m elf.cli.main run 2016 4 --part 1
+python -m elf.cli.main run 2016 4 --part both
+```
+
+#### 4. Test Your Solution
+
+Run tests using `test_input.txt` and `expected_output.txt`:
+
+```bash
+python -m elf.cli.main test <year> <day>
+```
+
+Example:
+
+```bash
+python -m elf.cli.main test 2016 4
+```
+
+#### 5. Submit Your Answer
+
+Submit your solution directly to Advent of Code:
+
+```bash
+python -m elf.cli.main submit <year> <day> <part> <answer>
+```
+
+Example:
+
+```bash
+python -m elf.cli.main submit 2016 4 1 12345
+```
+
+### Setting Up Your Session Token
+
+To fetch inputs and submit answers, you'll need your Advent of Code session token:
+
+1. Log in to [Advent of Code](https://adventofcode.com/) and copy your session token from the browser cookies.
+2. Save it as an environment variable:
+   ```bash
+   export AOC_SESSION_COOKIE='your_session_token_here'
+   ```
+
+**Note**: Keep your token secret to prevent unauthorized access.
+
+## ✨ Features of the `elf` Package
+
+The `elf` package simplifies common tasks:
+
+- **Input Handling**: Automatically fetch and cache puzzle inputs.
+- **Testing Utilities**: Compare your output with expected results.
+- **Template Management**: Quickly create new solution files.
+- **Error Handling**: Gracefully manage exceptions.
+
+Example usage in a solution:
+
+```python
+from elf import input, utils
+
+def part1(data):
+    return sum(map(int, data.split()))
+
+if __name__ == "__main__":
+    data = input.read_input_file("input.txt")
+    print("Part 1:", part1(data))
+```
 
 ---
 
-**May your days be merry and bright, and may your code run without a fight! Happy Holidays! 🎄🎅**
-
----
-
-## ☃️ Final Notes
-
-- **Security Reminder**: Always keep your session token private. It's like the secret recipe for Santa's cookies!
-- **Community Guidelines**: Be respectful and kind. The holiday spirit is all about sharing and caring.
-- **Feedback Welcome**: If you have suggestions to make this repository even more festive, let me know!
-
----
-
-**Special thanks to [Eric Wastl](https://adventofcode.com/about) for creating Advent of Code and bringing joy to the coding community every December!** 🎉
-
----
-
-**Enjoy your coding adventure, and may the elves guide you to success!**
+**May your Advent of Code journey be merry and bright! Happy coding! 🎅**
