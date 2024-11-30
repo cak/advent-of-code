@@ -152,7 +152,7 @@ def submit_to_aoc(
     url = f"https://adventofcode.com/{year}/day/{day}/answer"
     headers = {
         "Cookie": f"session={session_token}",
-        "User-Agent": "elf-package/1.0 (+https://github.com/cak/elf)",
+        "User-Agent": "cak (+https://github.com/cak)",
     }
     data = {"level": str(level), "answer": str(answer)}
 

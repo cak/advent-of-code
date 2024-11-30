@@ -40,7 +40,7 @@ def get_input(year: int, day: int, session_token: str | None = None) -> str:
     url = f"https://adventofcode.com/{year}/day/{day}/input"
     headers = {
         "Cookie": f"session={session_token}",
-        "User-Agent": "elf-package/1.0 (+https://github.com/cak/elf)",
+        "User-Agent": "cak (+https://github.com/cak)",
     }
 
     try:
