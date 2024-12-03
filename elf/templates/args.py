@@ -10,10 +10,18 @@ from elf.utils import read_expected_output, read_test_input
 
 # 🎅 Festive Argument Handling for Advent of Code 🎅 #
 def args(
-    part1: Callable[[list[str]], int],
-    part2: Callable[[list[str]], int],
+    part1: Callable[[list[str]], int | str],
+    part2: Callable[[list[str]], int | str],
     base_dir: Path,
 ) -> None:
+    """
+    Handles command-line arguments for Advent of Code solutions.
+
+    Parameters:
+        part1 (Callable[[list[str]], int | str]): Function to solve Part 1 of the puzzle.
+        part2 (Callable[[list[str]], int | str]): Function to solve Part 2 of the puzzle.
+        base_dir (Path): Path to the directory containing puzzle input and output files.
+    """
     parser = argparse.ArgumentParser(
         description="Advent of Code Solution Runner",
         epilog="🎄 Happy Coding! 🎄",
