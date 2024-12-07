@@ -77,7 +77,9 @@ def part2(data: list[str]) -> int | str:
 
     for wrong_update in wrong_order_updates:
         filtered_rules = {
-            key: value for key, value in rules.items() if key in wrong_update
+            key: value
+            for key, value in rules.items()
+            if any(v in wrong_update for v in value)
         }
 
         primary_sort = sorted(
